@@ -501,56 +501,32 @@ static Future<bool> excluirOcorrencia({
 
   try {
 
-    final request = http.Request(
-
-      'POST',
+    final response = await http.post(
 
       Uri.parse(baseUrl),
 
+      headers: {
+
+        'Content-Type': 'application/json',
+
+      },
+
+      body: jsonEncode({
+
+        "action": "excluirOcorrencia",
+
+        "id": id,
+
+      }),
+
     );
 
-    request.headers['Content-Type'] =
-        'application/json';
-
-    request.body = jsonEncode({
-
-      "action": "excluirOcorrencia",
-
-      "id": id,
-
-    });
-
-    final streamed =
-        await request.send();
-
-    if (streamed.statusCode == 302 &&
-        streamed.headers['location'] != null) {
-
-      final resposta =
-          await http.get(
-
-        Uri.parse(
-          streamed.headers['location']!,
-        ),
-
-      );
-
-      final json =
-          jsonDecode(resposta.body);
-
-      return json["sucesso"] == true;
-
-    }
-
-    final response =
-        await http.Response.fromStream(
-      streamed,
-    );
+    debugPrint("STATUS EXCLUIR = ${response.statusCode}");
+    debugPrint("BODY EXCLUIR = ${response.body}");
 
     if (response.statusCode == 200) {
 
-      final json =
-          jsonDecode(response.body);
+      final json = jsonDecode(response.body);
 
       return json["sucesso"] == true;
 
@@ -558,9 +534,7 @@ static Future<bool> excluirOcorrencia({
 
   } catch (e) {
 
-    debugPrint(
-      "ERRO EXCLUIR = $e",
-    );
+    debugPrint("ERRO EXCLUIR = $e");
 
   }
 
