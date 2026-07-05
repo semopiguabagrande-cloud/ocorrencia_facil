@@ -494,35 +494,27 @@ static Future<bool> editarOcorrencia({
 //=========================
 
 static Future<bool> excluirOcorrencia({
-
   required String id,
-
 }) async {
 
   try {
 
-    final response = await http.post(
+    final uri = Uri.parse(baseUrl).replace(
 
-      Uri.parse(baseUrl),
-
-      headers: {
-
-        'Content-Type': 'application/json',
-
-      },
-
-      body: jsonEncode({
+      queryParameters: {
 
         "action": "excluirOcorrencia",
 
         "id": id,
 
-      }),
+      },
 
     );
 
-    debugPrint("STATUS EXCLUIR = ${response.statusCode}");
-    debugPrint("BODY EXCLUIR = ${response.body}");
+    final response = await http.get(uri);
+
+    debugPrint("STATUS = ${response.statusCode}");
+    debugPrint("BODY = ${response.body}");
 
     if (response.statusCode == 200) {
 
