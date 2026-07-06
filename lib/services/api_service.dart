@@ -315,68 +315,28 @@ static Future<bool> atualizarAnexos({
 
   try {
 
-    final request = http.Request(
+    final uri = Uri.parse(baseUrl).replace(
 
-      'POST',
+      queryParameters: {
 
-      Uri.parse(baseUrl),
+        "action": "atualizarAnexos",
+
+        "id": id,
+
+        "anexos": anexos,
+
+      },
 
     );
 
-    request.headers['Content-Type'] =
-        'application/json';
+    final response = await http.get(uri);
 
-    request.body = jsonEncode({
-
-      "action": "atualizarAnexos",
-
-      "id": id,
-
-      "anexos": anexos,
-
-    });
-
-    final streamed =
-        await request.send();
-
-    debugPrint(
-      "ATUALIZAR STATUS = ${streamed.statusCode}",
-    );
-
-    if (streamed.statusCode == 302 &&
-        streamed.headers['location'] != null) {
-
-      final respostaFinal =
-          await http.get(
-
-        Uri.parse(
-          streamed.headers['location']!,
-        ),
-
-      );
-
-      debugPrint(
-        "ATUALIZAR BODY = ${respostaFinal.body}",
-      );
-
-      final json =
-          jsonDecode(respostaFinal.body);
-
-      return json["sucesso"] == true;
-
-    }
-
-    final response =
-        await http.Response.fromStream(
-      streamed,
-    );
-
-    debugPrint(response.body);
+    debugPrint("STATUS = ${response.statusCode}");
+    debugPrint("BODY = ${response.body}");
 
     if (response.statusCode == 200) {
 
-      final json =
-          jsonDecode(response.body);
+      final json = jsonDecode(response.body);
 
       return json["sucesso"] == true;
 
@@ -384,9 +344,7 @@ static Future<bool> atualizarAnexos({
 
   } catch (e) {
 
-    debugPrint(
-      "ERRO ATUALIZAR = $e",
-    );
+    debugPrint("ERRO ATUALIZAR = $e");
 
   }
 
