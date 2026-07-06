@@ -39,6 +39,8 @@ TextEditingController();
 String? tipoSelecionado;
 List<PlatformFile> imagensSelecionadas = [];
 
+  bool salvando = false;
+
 final List<String> tiposOcorrencia = [
 'AGRESSÃO',
 'DESACATO',
@@ -617,20 +619,30 @@ SizedBox(
     ),
     onPressed: () async {
 
-      if (tipoSelecionado == null ||
-          localController.text.trim().isEmpty ||
-          relatoController.text.trim().isEmpty) {
+  if (salvando) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Preencha todos os campos obrigatórios.',
-            ),
-          ),
-        );
+  setState(() {
+    salvando = true;
+  });
 
-        return;
-      }
+  if (tipoSelecionado == null ||
+      localController.text.trim().isEmpty ||
+      relatoController.text.trim().isEmpty) {
+
+    setState(() {
+      salvando = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Preencha todos os campos obrigatórios.',
+        ),
+      ),
+    );
+
+    return;
+  }
 
       final resposta =
           await ApiService.salvarOcorrencia(
@@ -656,6 +668,9 @@ SizedBox(
             ),
           ),
         );
+        setState(() {
+  salvando = false;
+});
 
         return;
       }
@@ -716,6 +731,9 @@ ScaffoldMessenger.of(context).showSnackBar(
   ),
 
 );
+setState(() {
+  salvando = false;
+});
 
 Navigator.pop(context);
 

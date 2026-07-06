@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'screens/tela_inicial.dart';
 
 void main() {
 
@@ -32,7 +32,7 @@ class OcorrenciaFacilApp extends StatelessWidget {
 
       ),
 
-      home: const SplashScreen(),
+      home: const TelaInicial(),
 
     );
 
