@@ -247,43 +247,63 @@ class _MinhasOcorrenciasScreenState
 
                   future: ocorrencias,
 
-                  builder:
-                      (context, snapshot) {
+                 builder: (context, snapshot) {
 
-                    if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
+  if (snapshot.connectionState ==
+      ConnectionState.waiting) {
 
-                      return const Center(
+    return const Center(
 
-                        child:
-                            CircularProgressIndicator(),
+      child: CircularProgressIndicator(),
 
-                      );
+    );
 
-                    }
+  }
 
-                    if (!snapshot.hasData ||
-                        snapshot.data!.isEmpty) {
+  if (snapshot.hasError) {
 
-                      return const Center(
+    return const Center(
 
-                        child: Text(
+      child: Text(
 
-                          'Nenhuma ocorrência encontrada.',
+        "Erro ao carregar ocorrências.",
 
-                          style: TextStyle(
+        style: TextStyle(
 
-                            color: Colors.white,
+          color: Colors.white,
 
-                            fontSize: 20,
+          fontSize: 20,
 
-                          ),
+        ),
 
-                        ),
+      ),
 
-                      );
+    );
 
-                    }
+  }
+
+  if (!snapshot.hasData ||
+      snapshot.data!.isEmpty) {
+
+    return const Center(
+
+      child: Text(
+
+        'Nenhuma ocorrência encontrada.',
+
+        style: TextStyle(
+
+          color: Colors.white,
+
+          fontSize: 20,
+
+        ),
+
+      ),
+
+    );
+
+  }
 
                     final lista =
                         snapshot.data!;
@@ -329,37 +349,229 @@ class _MinhasOcorrenciasScreenState
 
                     }
 
-                    return ListView.builder(
+                   return ListView.builder(
 
-                      padding:
-                          const EdgeInsets.only(
-                        left: 20,
-                        right: 20,
-                        bottom: 20,
+  padding: const EdgeInsets.only(
+    left: 20,
+    right: 20,
+    bottom: 20,
+  ),
+
+  itemCount: filtrada.length,
+
+  itemBuilder: (context, index) {
+
+    final oc = filtrada[index];
+
+    return InkWell(
+
+      borderRadius: BorderRadius.circular(15),
+
+      onTap: () async {
+
+        final resultado = await Navigator.push(
+
+          context,
+
+          MaterialPageRoute(
+
+            builder: (_) => DetalhesOcorrenciaScreen(
+
+              ocorrencia: oc,
+
+            ),
+
+          ),
+
+        );
+
+        if (resultado == true && mounted) {
+
+          setState(() {
+
+            carregarOcorrencias();
+
+          });
+
+        }
+
+      },
+
+      child: Card(
+
+        clipBehavior: Clip.antiAlias,
+
+        color: const Color(0xFF07152B),
+
+        margin: const EdgeInsets.only(
+          bottom: 15,
+        ),
+
+        elevation: 8,
+
+        shape: RoundedRectangleBorder(
+
+          borderRadius: BorderRadius.circular(15),
+
+        ),
+
+        child: Padding(
+
+          padding: const EdgeInsets.all(18),
+
+          child: Column(
+
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+
+            children: [
+
+              Text(
+
+                oc['id'].toString(),
+
+                style: const TextStyle(
+
+                  color: Colors.white,
+
+                  fontSize: 22,
+
+                  fontWeight: FontWeight.bold,
+
+                ),
+
+              ),
+
+              const SizedBox(height: 10),
+
+              Text(
+
+                oc['tipo'].toString(),
+
+                style: const TextStyle(
+
+                  color: Color(0xFF42A5F5),
+
+                  fontSize: 20,
+
+                  fontWeight: FontWeight.bold,
+
+                ),
+
+              ),
+
+              const SizedBox(height: 12),
+
+              Row(
+
+                children: [
+
+                  const Icon(
+
+                    Icons.calendar_month,
+
+                    color: Colors.white70,
+
+                    size: 18,
+
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Text(
+
+                    oc['data'].toString(),
+
+                    style: const TextStyle(
+
+                      color: Colors.white,
+
+                      fontSize: 17,
+
+                    ),
+
+                  ),
+
+                  const SizedBox(width: 25),
+
+                  const Icon(
+
+                    Icons.access_time,
+
+                    color: Colors.white70,
+
+                    size: 18,
+
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Text(
+
+                    oc['hora'].toString(),
+
+                    style: const TextStyle(
+
+                      color: Colors.white,
+
+                      fontSize: 17,
+
+                    ),
+
+                  ),
+
+                ],
+
+              ),
+
+              const SizedBox(height: 15),
+
+              Row(
+
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                children: [
+
+                  const Icon(
+
+                    Icons.location_on,
+
+                    color: Colors.redAccent,
+
+                    size: 20,
+
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Expanded(
+
+                    child: Text(
+
+                      oc['local'].toString(),
+
+                      style: const TextStyle(
+
+                        color: Colors.white,
+
+                        fontSize: 18,
+
                       ),
 
-                      itemCount:
-                          filtrada.length,
+                    ),
 
-                    itemBuilder: (context, index) {
+                  ),
 
-  final oc = filtrada[index];
+                ],
 
-  return InkWell(
+              ),
 
-  borderRadius: BorderRadius.circular(15),
+              const SizedBox(height: 15),
 
-  onTap: () async {
+            ],
 
-    final resultado = await Navigator.push(
-
-      context,
-
-      MaterialPageRoute(
-
-        builder: (_) => DetalhesOcorrenciaScreen(
-
-          ocorrencia: oc,
+          ),
 
         ),
 
@@ -367,160 +579,7 @@ class _MinhasOcorrenciasScreenState
 
     );
 
-    if (resultado == true) {
-
-  setState(() {
-
-    carregarOcorrencias();
-
-  });
-
-}
-
   },
-
-  child: Card(
-
-      color: const Color(0xFF07152B),
-
-      margin: const EdgeInsets.only(
-        bottom: 15,
-      ),
-
-      elevation: 8,
-
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-
-      child: Padding(
-
-        padding: const EdgeInsets.all(18),
-
-        child: Column(
-
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          children: [
-
-            Text(
-
-              oc['id'],
-
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-
-            ),
-
-            const SizedBox(height: 10),
-
-            Text(
-
-              oc['tipo'],
-
-              style: const TextStyle(
-                color: Color(0xFF42A5F5),
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-
-            ),
-
-            const SizedBox(height: 12),
-
-            Row(
-
-              children: [
-
-                const Icon(
-                  Icons.calendar_month,
-                  color: Colors.white70,
-                  size: 18,
-                ),
-
-                const SizedBox(width: 8),
-
-                Text(
-                  oc['data'],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 17,
-                  ),
-                ),
-
-                const SizedBox(width: 25),
-
-                const Icon(
-                  Icons.access_time,
-                  color: Colors.white70,
-                  size: 18,
-                ),
-
-                const SizedBox(width: 8),
-
-                Text(
-                  oc['hora'],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 17,
-                  ),
-                ),
-
-              ],
-
-            ),
-
-            const SizedBox(height: 15),
-
-            Row(
-
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-
-                const Icon(
-                  Icons.location_on,
-                  color: Colors.redAccent,
-                  size: 20,
-                ),
-
-                const SizedBox(width: 8),
-
-                Expanded(
-
-                  child: Text(
-
-                    oc['local'],
-
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
-
-                  ),
-
-                ),
-
-              ],
-
-            ),
-
-            const SizedBox(height: 15),
-
-          ],
-
-        ),
-
-      ),
-
-    ),
-
-  );
-
-},
 
 );
                   },

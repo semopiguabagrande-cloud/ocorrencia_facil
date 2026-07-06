@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/pdf_service.dart';
 import 'visualizar_imagem_screen.dart';
-import 'dart:io';
+
 
 import 'package:file_picker/file_picker.dart';
 
@@ -396,6 +396,8 @@ const SizedBox(height: 12),
                           return;
 
                         }
+                        debugPrint("DATA CONTROLLER = ${dataController.text}");
+                        debugPrint("HORA CONTROLLER = ${horaController.text}");
 
                         final sucesso =
                             await ApiService.editarOcorrencia(
@@ -541,29 +543,50 @@ const SizedBox(height: 12),
     );
 
   }
+Future<void> _adicionarImagem() async {
 
-
-  Future<void> _adicionarImagem() async {
-
-  FilePickerResult? resultado =
-      await FilePicker.platform.pickFiles(
+  final resultado = await FilePicker.platform.pickFiles(
 
     type: FileType.image,
+
+    withData: true,
 
   );
 
   if (resultado == null) return;
 
-  final File arquivo =
-      File(resultado.files.single.path!);
+  final arquivo = resultado.files.single;
+
+  if (arquivo.bytes == null) {
+
+    if (mounted) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+
+        const SnackBar(
+
+          content: Text(
+            "Erro ao ler imagem.",
+          ),
+
+        ),
+
+      );
+
+    }
+
+    return;
+
+  }
 
   final String? url =
       await ApiService.uploadImagem(
 
-    idOcorrencia:
-        widget.ocorrencia["id"],
+    idOcorrencia: widget.ocorrencia["id"],
 
-    arquivo: arquivo,
+    nomeArquivo: arquivo.name,
+
+    bytes: arquivo.bytes!,
 
   );
 
@@ -576,9 +599,7 @@ const SizedBox(height: 12),
         const SnackBar(
 
           content: Text(
-
             "Erro ao enviar imagem.",
-
           ),
 
         ),
@@ -599,13 +620,9 @@ const SizedBox(height: 12),
   if (texto.trim().isNotEmpty) {
 
     anexos = texto
-
         .split(";")
-
         .map((e) => e.trim())
-
         .where((e) => e.isNotEmpty)
-
         .toList();
 
   }
@@ -630,9 +647,7 @@ const SizedBox(height: 12),
         const SnackBar(
 
           content: Text(
-
             "Erro ao atualizar anexos.",
-
           ),
 
         ),
@@ -659,9 +674,7 @@ const SizedBox(height: 12),
       const SnackBar(
 
         content: Text(
-
           "Imagem adicionada.",
-
         ),
 
       ),
@@ -1148,15 +1161,19 @@ return Align(
 
         borderRadius: BorderRadius.circular(12),
 
-        child: Image.network(
+        child:Image.network(
 
-          url,
+  url,
 
-          width: 150,
+  width: 150,
 
-          height: 120,
+  height: 120,
 
-          fit: BoxFit.cover,
+  fit: BoxFit.cover,
+
+  filterQuality: FilterQuality.high,
+
+  gaplessPlayback: true,
 
           loadingBuilder: (
 
@@ -1246,11 +1263,11 @@ return Align(
 
           borderRadius: BorderRadius.circular(30),
 
-          onTap: () {
+         onTap: () async {
 
-            _removerImagem(url);
+  await _removerImagem(url);
 
-          },
+},
 
           child: Container(
 
@@ -1314,26 +1331,6 @@ return Align(
 
   }
 
-  //====================================================
-  // CONVERTE URL DO DRIVE
-  //====================================================
-
-  String _urlImagem(String url) {
-
-    if (url.contains("/file/d/")) {
-
-      final id =
-
-          url.split("/file/d/")[1].split("/")[0];
-
-      return
-
-          "https://drive.google.com/uc?export=view&id=$id";
-
-    }
-
-    return url;
-
-  }
+  
 
 }

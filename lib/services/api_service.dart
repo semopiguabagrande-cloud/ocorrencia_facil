@@ -1,7 +1,7 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'dart:io';
 
 class ApiService {
 
@@ -122,9 +122,19 @@ class ApiService {
       debugPrint("BODY = ${response.body}");
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      }
 
+  final lista = jsonDecode(response.body);
+
+  debugPrint("==================================");
+  debugPrint(lista.toString());
+
+  if (lista.isNotEmpty) {
+    debugPrint("DATA = ${lista[0]['data']}");
+    debugPrint("HORA = ${lista[0]['hora']}");
+  }
+
+  return lista;
+}
       return [];
 
     } catch (e) {
@@ -155,9 +165,19 @@ class ApiService {
       debugPrint("BODY = ${response.body}");
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      }
 
+  final lista = jsonDecode(response.body);
+
+  debugPrint("==================================");
+  debugPrint(lista.toString());
+
+  if (lista.isNotEmpty) {
+    debugPrint("DATA = ${lista[0]['data']}");
+    debugPrint("HORA = ${lista[0]['hora']}");
+  }
+
+  return lista;
+}
       return [];
 
     } catch (e) {
@@ -176,103 +196,36 @@ class ApiService {
 static Future<String?> uploadImagem({
 
   required String idOcorrencia,
-
-  required File arquivo,
+  required String nomeArquivo,
+  required Uint8List bytes,
 
 }) async {
 
   try {
 
-    final bytes = await arquivo.readAsBytes();
-
-    final base64Arquivo = base64Encode(bytes);
-
-    String mimeType = "image/jpeg";
-
-    final nome = arquivo.path.toLowerCase();
-
-    if (nome.endsWith(".png")) {
-      mimeType = "image/png";
-    } else if (nome.endsWith(".jpeg")) {
-      mimeType = "image/jpeg";
-    } else if (nome.endsWith(".jpg")) {
-      mimeType = "image/jpeg";
-    }
-
-    final request = http.Request(
-
-      'POST',
-
-      Uri.parse(baseUrl),
-
+    final uri = Uri.parse(
+      "https://api.cloudinary.com/v1_1/aialj9ni/image/upload",
     );
 
-    request.headers['Content-Type'] =
-        'application/json';
-
-    request.body = jsonEncode({
-
-      "tipo": "uploadAnexo",
-
-      "idOcorrencia": idOcorrencia,
-
-      "nomeArquivo":
-          arquivo.path.split("\\").last,
-
-      "mimeType": mimeType,
-
-      "base64": base64Arquivo,
-
-    });
-
-    final streamed =
-        await request.send();
-
-    debugPrint(
-      "STATUS UPLOAD = ${streamed.statusCode}",
+    final request = http.MultipartRequest(
+      "POST",
+      uri,
     );
 
-    debugPrint(
-      "LOCATION = ${streamed.headers['location']}",
+    request.fields["upload_preset"] = "ocorrenciafacil";
+
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        "file",
+        bytes,
+        filename: nomeArquivo,
+      ),
     );
 
-    //============================
-    // GOOGLE RETORNOU 302
-    //============================
-
-    if (streamed.statusCode == 302 &&
-        streamed.headers['location'] != null) {
-
-      final respostaFinal =
-          await http.get(
-
-        Uri.parse(
-          streamed.headers['location']!,
-        ),
-
-      );
-
-      debugPrint(
-        "BODY FINAL = ${respostaFinal.body}",
-      );
-
-      final json =
-          jsonDecode(respostaFinal.body);
-
-      if (json["sucesso"] == true) {
-
-        return json["url"];
-
-      }
-
-      return null;
-
-    }
+    final streamed = await request.send();
 
     final response =
-        await http.Response.fromStream(
-      streamed,
-    );
+        await http.Response.fromStream(streamed);
 
     debugPrint(response.body);
 
@@ -280,27 +233,22 @@ static Future<String?> uploadImagem({
 
       final json =
           jsonDecode(response.body);
+          debugPrint("UPLOAD CLOUDINARY OK");
+debugPrint(json["secure_url"]);
 
-      if (json["sucesso"] == true) {
-
-        return json["url"];
-
-      }
+      return json["secure_url"];
 
     }
 
   } catch (e) {
 
-    debugPrint(
-      "ERRO UPLOAD = $e",
-    );
+    debugPrint("ERRO CLOUDINARY = $e");
 
   }
 
   return null;
 
 }
-
 //=========================
 // ATUALIZAR ANEXOS
 //=========================

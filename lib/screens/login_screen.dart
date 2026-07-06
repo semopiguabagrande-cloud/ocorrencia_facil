@@ -103,9 +103,9 @@ class _LoginScreenState
           /// ESCURECE O FUNDO
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(
-                0.65,
-              ),
+              color: Colors.black.withValues(
+  alpha: 0.65,
+),
             ),
           ),
 
@@ -197,13 +197,12 @@ class _LoginScreenState
 
                         decoration:
                             BoxDecoration(
-                          color:
-                              const Color(
-                                0xFF07152B,
-                              ).withOpacity(
-                                0.92,
-                              ),
-
+                        
+                              color: const Color(
+  0xFF07152B,
+).withValues(
+  alpha: 0.92,
+),
                           borderRadius:
                               BorderRadius.circular(
                             25,

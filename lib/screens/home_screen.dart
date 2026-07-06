@@ -384,7 +384,7 @@ Widget _desktopButton(
       height: 200,
 
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.35),
+        color: Colors.black.withValues(alpha: 0.35),
 
         borderRadius: BorderRadius.circular(25),
 
@@ -489,7 +489,7 @@ Widget _mobileButton(
       height: 120,
 
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.35),
+        color: Colors.black.withValues(alpha: 0.35),
 
         borderRadius: BorderRadius.circular(25),
 

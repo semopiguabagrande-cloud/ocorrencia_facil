@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +37,7 @@ final relatoController =
 TextEditingController();
 
 String? tipoSelecionado;
-List<File> imagensSelecionadas = [];
+List<PlatformFile> imagensSelecionadas = [];
 
 final List<String> tiposOcorrencia = [
 'AGRESSÃO',
@@ -72,12 +70,13 @@ if (data != null) {
 }
 Future<void> selecionarImagens() async {
 
-  FilePickerResult? resultado =
-      await FilePicker.platform.pickFiles(
+  final resultado = await FilePicker.platform.pickFiles(
 
     allowMultiple: true,
 
     type: FileType.image,
+
+    withData: true,
 
   );
 
@@ -85,10 +84,7 @@ Future<void> selecionarImagens() async {
 
     setState(() {
 
-      imagensSelecionadas = resultado.paths
-          .where((e) => e != null)
-          .map((e) => File(e!))
-          .toList();
+      imagensSelecionadas = resultado.files;
 
     });
 
@@ -583,7 +579,7 @@ if (imagensSelecionadas.isNotEmpty)
               color: Colors.white,
             ),
             title: Text(
-              imagensSelecionadas[i].path.split("\\").last,
+    imagensSelecionadas[i].name,
               style: const TextStyle(
                 color: Colors.white,
               ),
@@ -665,54 +661,67 @@ SizedBox(
       }
 
       final String id = resposta["id"];
-      debugPrint("ID = $id");
+
+debugPrint("ID = $id");
 debugPrint("Quantidade de imagens = ${imagensSelecionadas.length}");
 
-      List<String> links = [];
+List<String> links = [];
 
-      for (final imagem in imagensSelecionadas) {
+for (final imagem in imagensSelecionadas) {
 
-  debugPrint("Enviando arquivo: ${imagem.path}");
+  if (imagem.bytes == null) continue;
 
   final url = await ApiService.uploadImagem(
+
     idOcorrencia: id,
-    arquivo: imagem,
+
+    nomeArquivo: imagem.name,
+
+    bytes: imagem.bytes!,
+
   );
 
-  debugPrint("URL retornada: $url");
-
   if (url != null) {
+
     links.add(url);
+
   }
 
 }
 
-      if (links.isNotEmpty) {
+if (links.isNotEmpty) {
 
-        await ApiService.atualizarAnexos(
-          id: id,
-          anexos: links.join(";"),
-        );
+  await ApiService.atualizarAnexos(
 
-      }
+    id: id,
 
-      ScaffoldMessenger.of(context).showSnackBar(
+    anexos: links.join(";"),
 
-        SnackBar(
-          backgroundColor: Colors.green,
-          content: Text(
-            'Ocorrência $id salva com sucesso!',
-          ),
-        ),
+  );
 
-      );
+}
 
-      Navigator.pop(context);
+ScaffoldMessenger.of(context).showSnackBar(
 
-    },
+  SnackBar(
+
+    backgroundColor: Colors.green,
+
+    content: Text(
+
+      'Ocorrência $id salva com sucesso!',
+
+    ),
+
   ),
-),
 
+);
+
+Navigator.pop(context);
+
+},
+),
+),
 
               ],
             ),
@@ -724,4 +733,5 @@ debugPrint("Quantidade de imagens = ${imagensSelecionadas.length}");
 );
 
 }
+
 }
