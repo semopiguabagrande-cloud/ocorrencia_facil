@@ -411,68 +411,38 @@ static Future<bool> editarOcorrencia({
 
   try {
 
-    final request = http.Request(
+    final uri = Uri.parse(baseUrl).replace(
 
-      'POST',
+      queryParameters: {
 
-      Uri.parse(baseUrl),
+        "action": "editarOcorrencia",
+
+        "id": id,
+
+        "data": data,
+
+        "hora": hora,
+
+        "tipo": tipo,
+
+        "local": local,
+
+        "envolvidos": envolvidos,
+
+        "relato": relato,
+
+      },
 
     );
 
-    request.headers['Content-Type'] =
-        'application/json';
+    final response = await http.get(uri);
 
-    request.body = jsonEncode({
-
-      "action": "editarOcorrencia",
-
-      "id": id,
-
-      "data": data,
-
-      "hora": hora,
-
-      "tipo": tipo,
-
-      "local": local,
-
-      "envolvidos": envolvidos,
-
-      "relato": relato,
-
-    });
-
-    final streamed =
-        await request.send();
-
-    if (streamed.statusCode == 302 &&
-        streamed.headers['location'] != null) {
-
-      final resposta =
-          await http.get(
-
-        Uri.parse(
-          streamed.headers['location']!,
-        ),
-
-      );
-
-      final json =
-          jsonDecode(resposta.body);
-
-      return json["sucesso"] == true;
-
-    }
-
-    final response =
-        await http.Response.fromStream(
-      streamed,
-    );
+    debugPrint("STATUS = ${response.statusCode}");
+    debugPrint("BODY = ${response.body}");
 
     if (response.statusCode == 200) {
 
-      final json =
-          jsonDecode(response.body);
+      final json = jsonDecode(response.body);
 
       return json["sucesso"] == true;
 
@@ -480,9 +450,7 @@ static Future<bool> editarOcorrencia({
 
   } catch (e) {
 
-    debugPrint(
-      "ERRO EDITAR = $e",
-    );
+    debugPrint("ERRO EDITAR = $e");
 
   }
 
